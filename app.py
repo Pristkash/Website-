@@ -8,7 +8,9 @@ app = Flask(__name__)
 bcrypt = Bcrypt(app)
 CORS(app)
 
-DB_FILE = 'database.json'
+# Construct a robust, absolute path to the database file
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_FILE = os.path.join(BASE_DIR, 'database.json')
 
 def read_db():
     if not os.path.exists(DB_FILE):

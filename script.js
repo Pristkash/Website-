@@ -47,10 +47,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const result = await response.json();
 
-        registerMessage.textContent = result.message;
         if (result.success) {
+            // Use a more explicit, client-side message to guide the user.
+            registerMessage.textContent = 'Account created! You can now log in.';
             registerMessage.classList.add('success');
+            // Clear the input fields
+            document.getElementById('register-username').value = '';
+            document.getElementById('register-password').value = '';
         } else {
+            registerMessage.textContent = result.message;
             registerMessage.classList.remove('success');
         }
     });
