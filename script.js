@@ -1,150 +1,114 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // State
-    let gameState = {};
+    const urlInput = document.getElementById('youtube-url');
+    const fetchBtn = document.getElementById('fetch-btn');
+    const resultsSection = document.getElementById('results-section');
+    const videoTitle = document.getElementById('video-title');
+    const qualitySelector = document.getElementById('quality-selector');
+    const downloadBtn = document.getElementById('download-btn');
+    const statusMessage = document.getElementById('status-message');
 
-    // Containers
-    const authContainer = document.getElementById('auth-container');
-    const gameContainer = document.getElementById('game');
-
-    // Auth Forms
-    const loginForm = document.getElementById('login-form');
-    const registerForm = document.getElementById('register-form');
-    const loginMessage = document.getElementById('login-message');
-    const registerMessage = document.getElementById('register-message');
-
-    // Auth Form Toggling
-    const showRegisterLink = document.getElementById('show-register');
-    const showLoginLink = document.getElementById('show-login');
-
-    showRegisterLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        loginMessage.textContent = '';
-        loginForm.style.display = 'none';
-        registerForm.style.display = 'block';
-    });
-
-    showLoginLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        registerMessage.textContent = '';
-        registerForm.style.display = 'none';
-        loginForm.style.display = 'block';
-    });
-
-    // Game Elements
-    const terminal = document.getElementById('terminal');
-    const commandInput = document.getElementById('command-input');
-
-    // --- Authentication Logic with Error Handling ---
-    document.getElementById('register-btn').addEventListener('click', async () => {
-        const username = document.getElementById('register-username').value;
-        const password = document.getElementById('register-password').value;
-
-        try {
-            const response = await fetch('/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
-            });
-
-            const result = await response.json();
-
-            if (response.ok) { // Check for 2xx status code
-                registerMessage.textContent = 'Account created! You can now log in.';
-                registerMessage.classList.add('success');
-                document.getElementById('register-username').value = '';
-                document.getElementById('register-password').value = '';
-            } else {
-                registerMessage.textContent = result.message || 'An unknown error occurred.';
-                registerMessage.classList.remove('success');
-            }
-        } catch (error) {
-            console.error('Registration Fetch Error:', error);
-            registerMessage.textContent = 'Cannot connect to server. Please try again later.';
-            registerMessage.classList.remove('success');
+    fetchBtn.addEventListener('click', async () => {
+        const url = urlInput.value.trim();
+        if (!url) {
+            statusMessage.textContent = 'Please enter a YouTube URL.';
+            return;
         }
-    });
 
-    document.getElementById('login-btn').addEventListener('click', async () => {
-        const username = document.getElementById('login-username').value;
-        const password = document.getElementById('login-password').value;
+        // Reset UI
+        resultsSection.style.display = 'none';
+        statusMessage.textContent = 'Fetching video information...';
+        fetchBtn.disabled = true;
+        fetchBtn.textContent = 'Fetching...';
 
         try {
-            const response = await fetch('/login', {
+            const response = await fetch('/get_video_info', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ url: url }),
             });
 
             const result = await response.json();
 
             if (response.ok) {
-                gameState = {
-                    username: username,
-                    progress: result.progress
-                };
-                showGame();
-                initializeGame();
+                videoTitle.textContent = result.title;
+                qualitySelector.innerHTML = ''; // Clear previous options
+
+                if (result.formats && result.formats.length > 0) {
+                    result.formats.forEach(format => {
+                        const option = document.createElement('option');
+                        option.value = format.format_id;
+                        option.textContent = format.resolution;
+                        qualitySelector.appendChild(option);
+                    });
+                    resultsSection.style.display = 'block';
+                    statusMessage.textContent = '';
+                } else {
+                    statusMessage.textContent = 'No downloadable video formats found.';
+                }
             } else {
-                loginMessage.textContent = result.message || 'An unknown error occurred.';
-                loginMessage.classList.remove('success');
+                statusMessage.textContent = `Error: ${result.error || 'Unknown error'}`;
             }
         } catch (error) {
-            console.error('Login Fetch Error:', error);
-            loginMessage.textContent = 'Cannot connect to server. Please try again later.';
-            loginMessage.classList.remove('success');
+            console.error('Fetch Error:', error);
+            statusMessage.textContent = 'Failed to connect to the server. Please try again.';
+        } finally {
+            fetchBtn.disabled = false;
+            fetchBtn.textContent = 'Fetch Qualities';
         }
     });
 
-    // --- Game Logic ---
-    function showGame() {
-        authContainer.style.display = 'none';
-        gameContainer.style.display = 'flex';
-        commandInput.focus();
-    }
+    downloadBtn.addEventListener('click', async () => {
+        const url = urlInput.value.trim();
+        const formatId = qualitySelector.value;
 
-    function initializeGame() {
-        document.getElementById('user-display').textContent = `USER: ${gameState.username}`;
-        terminal.innerHTML = ''; // Clear terminal
-        const welcomeMessage = document.createElement('div');
-        welcomeMessage.textContent = `Welcome, ${gameState.username}. Type 'help' for a list of commands.`;
-        terminal.appendChild(welcomeMessage);
+        if (!url || !formatId) {
+            statusMessage.textContent = 'Something went wrong. Please fetch the video qualities again.';
+            return;
+        }
 
-        // TODO: Check if tutorial is needed
-    }
+        statusMessage.textContent = 'Preparing download... This may take a moment.';
+        downloadBtn.disabled = true;
+        downloadBtn.textContent = 'Downloading...';
 
-    commandInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            const command = commandInput.value.trim();
-            commandInput.value = '';
+        try {
+            const response = await fetch('/download_video', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: url, format_id: formatId }),
+            });
 
-            if (command) {
-                const output = document.createElement('div');
-                output.innerHTML = `<span class="prompt">></span> ${command}`;
-                terminal.appendChild(output);
-
-                processCommand(command);
+            if (response.ok) {
+                const blob = await response.blob();
+                const tempUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = tempUrl;
+                // Get filename from content-disposition header
+                const disposition = response.headers.get('content-disposition');
+                let filename = 'video.mp4'; // default
+                if (disposition && disposition.indexOf('attachment') !== -1) {
+                    const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                    const matches = filenameRegex.exec(disposition);
+                    if (matches != null && matches[1]) {
+                        filename = matches[1].replace(/['"]/g, '');
+                    }
+                }
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(tempUrl);
+                document.body.removeChild(a);
+                statusMessage.textContent = 'Download started!';
+            } else {
+                const result = await response.json();
+                statusMessage.textContent = `Error: ${result.error || 'Failed to start download.'}`;
             }
-            terminal.scrollTop = terminal.scrollHeight;
+        } catch (error) {
+            console.error('Download Error:', error);
+            statusMessage.textContent = 'An error occurred while trying to download the video.';
+        } finally {
+            downloadBtn.disabled = false;
+            downloadBtn.textContent = 'Download';
         }
     });
-
-    function processCommand(command) {
-        const output = document.createElement('div');
-        // Basic command processing
-        switch(command.toLowerCase()) {
-            case 'help':
-                output.textContent = 'Available commands: help, clear, whoami';
-                break;
-            case 'clear':
-                terminal.innerHTML = '';
-                return; // Don't append an empty div
-            case 'whoami':
-                output.textContent = gameState.username;
-                break;
-            default:
-                output.textContent = `Command not found: ${command}`;
-                break;
-        }
-        terminal.appendChild(output);
-    }
 });

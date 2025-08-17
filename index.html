@@ -3,38 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hacker Simulation</title>
+    <title>YouTube Downloader</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="auth-container">
-        <div id="login-form">
-            <h2>Login</h2>
-            <div class="message" id="login-message"></div>
-            <input type="text" id="login-username" placeholder="Username">
-            <input type="password" id="login-password" placeholder="Password">
-            <button id="login-btn">Login</button>
-            <p>Don't have an account? <a href="#" id="show-register">Register here</a></p>
+    <div class="container">
+        <h1>YouTube Video Downloader</h1>
+        <div class="input-section">
+            <input type="text" id="youtube-url" placeholder="Enter YouTube video URL...">
+            <button id="fetch-btn">Fetch Qualities</button>
         </div>
-        <div id="register-form" style="display: none;">
-            <h2>Register</h2>
-            <div class="message" id="register-message"></div>
-            <input type="text" id="register-username" placeholder="Username">
-            <input type="password" id="register-password" placeholder="Password">
-            <button id="register-btn">Register</button>
-            <p>Already have an account? <a href="#" id="show-login">Login here</a></p>
+        <div id="results-section" style="display: none;">
+            <h2 id="video-title"></h2>
+            <select id="quality-selector"></select>
+            <button id="download-btn">Download</button>
         </div>
-    </div>
-
-    <div id="game" style="display: none;">
-        <div id="game-header">
-            <span id="user-display"></span>
-        </div>
-        <div id="terminal"></div>
-        <div id="input-line">
-            <span class="prompt">></span>
-            <input type="text" id="command-input" autofocus>
-        </div>
+        <div id="status-message"></div>
     </div>
     <script src="script.js"></script>
 </body>
