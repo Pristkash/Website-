@@ -6,6 +6,13 @@
                 "level": 1,
                 "tutorialCompleted": false
             }
+        },
+        "testuser": {
+            "password": "$2b$12$rslxekitfE98wdww4SZu9O1vyMoUzT6Ba/9KU4wl8sciezdI7tIga",
+            "progress": {
+                "level": 1,
+                "tutorialCompleted": false
+            }
         }
     }
 }

@@ -68,7 +68,18 @@ a {
     border: 1px solid #0F0;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
+}
+
+#game-header {
+    padding: 5px 10px;
+    border-bottom: 1px solid #0F0;
+    text-align: right;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+#user-display {
+    font-weight: bold;
 }
 
 #terminal {

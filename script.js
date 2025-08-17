@@ -34,28 +34,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const terminal = document.getElementById('terminal');
     const commandInput = document.getElementById('command-input');
 
-    // --- Authentication Logic ---
+    // --- Authentication Logic with Error Handling ---
     document.getElementById('register-btn').addEventListener('click', async () => {
         const username = document.getElementById('register-username').value;
         const password = document.getElementById('register-password').value;
 
-        const response = await fetch('/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        });
+        try {
+            const response = await fetch('/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
 
-        const result = await response.json();
+            const result = await response.json();
 
-        if (result.success) {
-            // Use a more explicit, client-side message to guide the user.
-            registerMessage.textContent = 'Account created! You can now log in.';
-            registerMessage.classList.add('success');
-            // Clear the input fields
-            document.getElementById('register-username').value = '';
-            document.getElementById('register-password').value = '';
-        } else {
-            registerMessage.textContent = result.message;
+            if (response.ok) { // Check for 2xx status code
+                registerMessage.textContent = 'Account created! You can now log in.';
+                registerMessage.classList.add('success');
+                document.getElementById('register-username').value = '';
+                document.getElementById('register-password').value = '';
+            } else {
+                registerMessage.textContent = result.message || 'An unknown error occurred.';
+                registerMessage.classList.remove('success');
+            }
+        } catch (error) {
+            console.error('Registration Fetch Error:', error);
+            registerMessage.textContent = 'Cannot connect to server. Please try again later.';
             registerMessage.classList.remove('success');
         }
     });
@@ -64,23 +68,29 @@ document.addEventListener('DOMContentLoaded', () => {
         const username = document.getElementById('login-username').value;
         const password = document.getElementById('login-password').value;
 
-        const response = await fetch('/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        });
+        try {
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
 
-        const result = await response.json();
+            const result = await response.json();
 
-        if (result.success) {
-            gameState = {
-                username: username,
-                progress: result.progress
-            };
-            showGame();
-            initializeGame();
-        } else {
-            loginMessage.textContent = result.message;
+            if (response.ok) {
+                gameState = {
+                    username: username,
+                    progress: result.progress
+                };
+                showGame();
+                initializeGame();
+            } else {
+                loginMessage.textContent = result.message || 'An unknown error occurred.';
+                loginMessage.classList.remove('success');
+            }
+        } catch (error) {
+            console.error('Login Fetch Error:', error);
+            loginMessage.textContent = 'Cannot connect to server. Please try again later.';
             loginMessage.classList.remove('success');
         }
     });
@@ -93,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function initializeGame() {
+        document.getElementById('user-display').textContent = `USER: ${gameState.username}`;
         terminal.innerHTML = ''; // Clear terminal
         const welcomeMessage = document.createElement('div');
         welcomeMessage.textContent = `Welcome, ${gameState.username}. Type 'help' for a list of commands.`;
