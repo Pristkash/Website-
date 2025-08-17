@@ -1,0 +1,101 @@
+body {
+    background-color: #000;
+    color: #0F0;
+    font-family: 'Courier New', Courier, monospace;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+a {
+    color: #0F0;
+}
+
+#auth-container {
+    width: 300px;
+    border: 1px solid #0F0;
+    padding: 20px;
+}
+
+#auth-container h2 {
+    text-align: center;
+    margin-top: 0;
+}
+
+#auth-container input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #111;
+    border: 1px solid #0F0;
+    color: #0F0;
+    box-sizing: border-box;
+}
+
+#auth-container button {
+    width: 100%;
+    padding: 10px;
+    background-color: #0F0;
+    border: none;
+    color: #000;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#auth-container p {
+    text-align: center;
+    font-size: 12px;
+}
+
+.message {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #FF5555; /* Default to an error-like color */
+}
+
+.message.success {
+    color: #0F0;
+}
+
+#game {
+    width: 100%;
+    height: 100%;
+    border: 1px solid #0F0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+#terminal {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 10px;
+    white-space: pre-wrap;
+}
+
+#input-line {
+    display: flex;
+    padding: 10px;
+}
+
+.prompt {
+    margin-right: 10px;
+}
+
+#command-input {
+    background-color: transparent;
+    border: none;
+    color: #0F0;
+    font-family: inherit;
+    font-size: inherit;
+    width: 100%;
+}
+
+#command-input:focus {
+    outline: none;
+}

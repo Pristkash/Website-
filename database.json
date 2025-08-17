@@ -1,0 +1,11 @@
+{
+    "users": {
+        "jules": {
+            "password": "$2b$12$C.1fesgqu4gM3sGhHPbfl.L1ewno18xB1Iy/G0PMc3qnRvqbg3Z0K",
+            "progress": {
+                "level": 1,
+                "tutorialCompleted": false
+            }
+        }
+    }
+}
